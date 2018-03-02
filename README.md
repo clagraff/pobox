@@ -26,3 +26,13 @@ curl localhost:8080
 curl -X POST -d 'this is data!' localhost:8080/whatever/route/i/want
 curl -X OPTIONS localhost:8080/fiiz/buzz?anything=here
 ```
+
+## Configuration
+You can supply either a `JSON` or `Yaml` using the `-cfg=<PATH>` flag when
+running `pobox`.
+
+Here is an example configuration file:
+```bash
+port: 8080      # Specify what port the server should run against
+verbose: true   # Enable or disable verbose log output
+```
