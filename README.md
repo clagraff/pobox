@@ -2,7 +2,7 @@
 [![GoDoc](https://godoc.org/github.com/clagraff/pobox?status.svg)](https://godoc.org/github.com/clagraff/pobox)
 [![Go Report Card](http://goreportcard.com/badge/clagraff/pobox)](http://goreportcard.com/report/clagraff/pobox)
 
-[!](.github/postbox.png)
+![](.github/postbox.png)
 
 # pobox
 POBox is a eary-to-run web server which will accept and log _all_ incoming
