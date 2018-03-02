@@ -14,7 +14,6 @@ POBox is a Golang application. As such, you will need to Go installed in order
 to run the application. 
 
 ```bash
-go get github.com/clagraff/pobox
 go install github.com/clagraff/pobox
 pobox
 ```
