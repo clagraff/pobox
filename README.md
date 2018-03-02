@@ -32,7 +32,13 @@ You can supply either a `JSON` or `Yaml` using the `-cfg=<PATH>` flag when
 running `pobox`.
 
 Here is an example configuration file:
-```bash
+```yaml
+# config.yaml
 port: 8080      # Specify what port the server should run against
 verbose: true   # Enable or disable verbose log output
+```
+
+Then run by passing the file path as a flag:
+```bash
+pobox -cfg=config.yaml
 ```
