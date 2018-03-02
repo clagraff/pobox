@@ -1,3 +1,5 @@
+![](.github/postbox.png)
+
 [![CircleCI](https://circleci.com/gh/clagraff/pobox.svg?style=svg)](https://circleci.com/gh/clagraff/pobox)
 [![GoDoc](https://godoc.org/github.com/clagraff/pobox?status.svg)](https://godoc.org/github.com/clagraff/pobox)
 [![Go Report Card](http://goreportcard.com/badge/clagraff/pobox)](http://goreportcard.com/report/clagraff/pobox)
@@ -23,4 +25,20 @@ After that, use cURL to see it in action:
 curl localhost:8080
 curl -X POST -d 'this is data!' localhost:8080/whatever/route/i/want
 curl -X OPTIONS localhost:8080/fiiz/buzz?anything=here
+```
+
+## Configuration
+You can supply either a `JSON` or `Yaml` using the `-cfg=<PATH>` flag when
+running `pobox`.
+
+Here is an example configuration file:
+```yaml
+# config.yaml
+port: 8080      # Specify what port the server should run against
+verbose: true   # Enable or disable verbose log output
+```
+
+Then run by passing the file path as a flag:
+```bash
+pobox -cfg=config.yaml
 ```
