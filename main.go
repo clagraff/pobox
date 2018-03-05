@@ -11,10 +11,13 @@ import (
 	"time"
 
 	"github.com/labstack/gommon/color"
+	uuid "github.com/satori/go.uuid"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/clagraff/pobox/endpoints"
+	"github.com/clagraff/pobox/monitoring"
+	"github.com/clagraff/pobox/requests"
 )
 
 var (
@@ -112,11 +115,33 @@ func parseRoutesFile() []endpoints.DefinedRoute {
 }
 
 func main() {
-	rr := make(chan http.Request)
 
 	routes := parseRoutesFile()
-	_, start := endpoints.CreateServer(routes, rr, 8080)
-	go func() { start() }()
 
-	logRequests(rr)
+	endpointsPort := 8080
+	monitoringPort := 8090
+	apiUUID := uuid.Must(uuid.NewV4())
+
+	color.Println(
+		color.Green(
+			fmt.Sprintf("POBox web-hook server running on port: %d", endpointsPort),
+		),
+	)
+	color.Println(
+		color.Blue(
+			fmt.Sprintf("POBox API server running on port: %d with API Key: %s", monitoringPort, apiUUID),
+		),
+	)
+	fmt.Println("")
+
+	rr := make(chan requests.Request)
+	_, startEndpointsServer := endpoints.CreateServer(rr, endpointsPort)
+	_, startMonitoringServer := monitoring.CreateServer(rr, monitoringPort)
+
+	go func() { startEndpointsServer() }()
+	go func() { startMonitoringServer() }()
+
+	//logRequests(rr)
+	for {
+	}
 }

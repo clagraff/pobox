@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/clagraff/pobox/requests"
 	"github.com/nbari/violetear"
 )
 
@@ -64,7 +65,7 @@ func copyRequest(original *http.Request) (http.Request, error) {
 	return copy, nil
 }
 
-func createCatchAllRoute(routes MappedRoutes, receivedRequests chan http.Request) func(http.ResponseWriter, *http.Request) {
+func createCatchAllRoute(receivedRequests chan requests.Request) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		copiedReq, err := copyRequest(r)
 		if err != nil {
@@ -88,6 +89,7 @@ func createCatchAllRoute(routes MappedRoutes, receivedRequests chan http.Request
 			}
 		}
 
+		receivedRequests <- requests.FromHTTPRequest(copiedReq, true)
 		w.Write([]byte(""))
 	}
 }
@@ -117,7 +119,7 @@ func mapDefinedRoutes(routes []DefinedRoute) MappedRoutes {
 	return mapped
 }
 
-func CreateServer(routes []DefinedRoute, receivedRequests chan http.Request, port int) (*http.Server, func() error) {
+func CreateServer(receivedRequests chan requests.Request, port int) (*http.Server, func() error) {
 	listenAddr := fmt.Sprintf(":%d", port)
 	mapped := mapDefinedRoutes(routes)
 
