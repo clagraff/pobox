@@ -1,19 +1,16 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/labstack/gommon/color"
 	uuid "github.com/satori/go.uuid"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
-	yaml "gopkg.in/yaml.v2"
 
 	"github.com/clagraff/pobox/endpoints"
 	"github.com/clagraff/pobox/monitoring"
@@ -84,40 +81,7 @@ func logRequests(receivedRequests chan http.Request) {
 	}
 }
 
-func parseRoutesFile() []endpoints.DefinedRoute {
-	definedRoutes := make([]endpoints.DefinedRoute, 0)
-
-	if routes != nil && len(*routes) > 0 {
-		routePath := *routes
-		ext := filepath.Ext(routePath)
-
-		buf, err := ioutil.ReadFile(routePath)
-		if err != nil {
-			panic(err)
-		}
-
-		if ext == ".yaml" || ext == ".yml" {
-			err := yaml.Unmarshal(buf, &definedRoutes)
-			if err != nil {
-				panic(err)
-			}
-		} else if ext == ".json" {
-			err := json.Unmarshal(buf, &definedRoutes)
-			if err != nil {
-				panic(err)
-			}
-		} else {
-			panic(fmt.Errorf("unsupported route file extension: %s", ext))
-		}
-	}
-
-	return definedRoutes
-}
-
 func main() {
-
-	routes := parseRoutesFile()
-
 	endpointsPort := 8080
 	monitoringPort := 8090
 	apiUUID := uuid.Must(uuid.NewV4())
