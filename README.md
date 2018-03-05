@@ -16,15 +16,15 @@ POBox is a Golang application. As such, you will need to Go installed in order
 to run the application. 
 
 ```bash
-go install github.com/clagraff/pobox
-pobox
+$ go install github.com/clagraff/pobox
+$ pobox
 ```
 
 After that, use cURL to see it in action:
 ```bash
-curl localhost:8080
-curl -X POST -d 'this is data!' localhost:8080/whatever/route/i/want
-curl -X OPTIONS localhost:8080/fiiz/buzz?anything=here
+$ curl localhost:8080
+$ curl -X POST -d 'this is data!' localhost:8080/whatever/route/i/want
+$ curl -X OPTIONS localhost:8080/fiiz/buzz?anything=here
 ```
 
 ## Routes
@@ -54,10 +54,9 @@ Here is an example `.yaml` route file:
 ```
 
 ```bash
-> pobox routes.yaml
-> curl http://localhost/hello/world
-
-> curl http://localhost/Fizz/buzz
+$ pobox routes.yaml &
+$ curl http://localhost/hello/world
+$ curl http://localhost/Fizz/buzz
 <html>
     <body>
         <h1>My Response</h1>
