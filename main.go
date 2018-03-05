@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -17,11 +18,13 @@ import (
 )
 
 var (
-	routes = kingpin.Arg("routes", "Yaml file defining custom routes").String()
+	app    = kingpin.New("pobox", "An app for logging requests from web-hooks")
+	routes = app.Arg("routes-files", "JSON/Yaml file path which defines custom routes").String()
 )
 
 func init() {
-	kingpin.Parse()
+	app.Version("0.0.0")
+	app.Parse(os.Args[1:])
 }
 
 func logRequests(receivedRequests chan http.Request) {
@@ -81,7 +84,7 @@ func logRequests(receivedRequests chan http.Request) {
 func parseRoutesFile() []endpoints.DefinedRoute {
 	definedRoutes := make([]endpoints.DefinedRoute, 0)
 
-	if routes != nil {
+	if routes != nil && len(*routes) > 0 {
 		routePath := *routes
 		ext := filepath.Ext(routePath)
 
