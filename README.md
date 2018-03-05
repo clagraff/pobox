@@ -16,29 +16,51 @@ POBox is a Golang application. As such, you will need to Go installed in order
 to run the application. 
 
 ```bash
-go install github.com/clagraff/pobox
-pobox
+$ go install github.com/clagraff/pobox
+$ pobox
 ```
 
 After that, use cURL to see it in action:
 ```bash
-curl localhost:8080
-curl -X POST -d 'this is data!' localhost:8080/whatever/route/i/want
-curl -X OPTIONS localhost:8080/fiiz/buzz?anything=here
+$ curl localhost:8080
+$ curl -X POST -d 'this is data!' localhost:8080/whatever/route/i/want
+$ curl -X OPTIONS localhost:8080/fiiz/buzz?anything=here
 ```
 
-## Configuration
-You can supply either a `JSON` or `Yaml` using the `-cfg=<PATH>` flag when
-running `pobox`.
+## Routes
+Using the `pobox <route-file>` argument, you can specify a `.json` or `.yaml`
+file which supplies pre-defined routes.
 
-Here is an example configuration file:
+These routes specify a regex pattern for which URIs and methods to react to,
+and supply response information.
+
+This is useful in the event a web-hook requires a specific response back.
+
+Here is an example `.yaml` route file:
 ```yaml
-# config.yaml
-port: 8080      # Specify what port the server should run against
-verbose: true   # Enable or disable verbose log output
+# routes.yaml
+-
+    request:
+        uri: /[fF]izz/buz{1,3}  # regex pattern for matching URIs
+        method: get|post        # regex pattern for matching request methods
+    response:
+        body: |                 # Multi-line string response
+            <html>
+                <body>
+                    <h1>My Response</h1>
+                    <p>this is my response</p>
+                </body>
+            </html>
 ```
 
-Then run by passing the file path as a flag:
 ```bash
-pobox -cfg=config.yaml
+$ pobox routes.yaml &
+$ curl http://localhost/hello/world
+$ curl http://localhost/Fizz/buzz
+<html>
+    <body>
+        <h1>My Response</h1>
+        <p>this is my response</p>
+    </body>
+</html>
 ```
