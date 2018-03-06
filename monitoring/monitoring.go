@@ -97,7 +97,26 @@ func storeRequests(receivedRequests chan requests.Request) {
 	}
 }
 
-func CreateServer(receivedRequests chan requests.Request, port int) (*http.Server, func() error) {
+func authWrapper(apiKey uuid.UUID, handler http.HandlerFunc) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		authorization := r.Header.Get("Authorization")
+		if len(authorization) <= 0 {
+			w.WriteHeader(401)
+			return
+		}
+
+		authUUID := uuid.Must(uuid.FromString(authorization))
+
+		if !uuid.Equal(apiKey, authUUID) {
+			w.WriteHeader(401)
+			return
+		}
+
+		handler(w, r)
+	}
+}
+
+func CreateServer(apiKey uuid.UUID, receivedRequests chan requests.Request, port int) (*http.Server, func() error) {
 	listenAddr := fmt.Sprintf(":%d", port)
 
 	router := violetear.New()
@@ -109,11 +128,11 @@ func CreateServer(receivedRequests chan requests.Request, port int) (*http.Serve
 		`[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`,
 	)
 
-	router.HandleFunc("/requests", listRequests, "GET")
-	router.HandleFunc("/requests", clearRequests, "DELETE")
+	router.HandleFunc("/requests", authWrapper(apiKey, listRequests), "GET")
+	router.HandleFunc("/requests", authWrapper(apiKey, clearRequests), "DELETE")
 
-	router.HandleFunc("/requests/:uuid", retrieveRequest, "GET")
-	router.HandleFunc("/requests/:uuid", deleteRequest, "DELETE")
+	router.HandleFunc("/requests/:uuid", authWrapper(apiKey, retrieveRequest), "GET")
+	router.HandleFunc("/requests/:uuid", authWrapper(apiKey, deleteRequest), "DELETE")
 
 	srv := &http.Server{
 		Addr:           listenAddr,

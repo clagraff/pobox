@@ -100,7 +100,7 @@ func main() {
 
 	rr := make(chan requests.Request)
 	_, startEndpointsServer := endpoints.CreateServer(rr, endpointsPort)
-	_, startMonitoringServer := monitoring.CreateServer(rr, monitoringPort)
+	_, startMonitoringServer := monitoring.CreateServer(apiUUID, rr, monitoringPort)
 
 	go func() { startEndpointsServer() }()
 	go func() { startMonitoringServer() }()
