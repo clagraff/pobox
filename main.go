@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/labstack/gommon/color"
+	"github.com/pkg/profile"
 	uuid "github.com/satori/go.uuid"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 
@@ -20,6 +21,7 @@ import (
 var (
 	app    = kingpin.New("pobox", "An app for logging requests from web-hooks")
 	routes = app.Arg("routes-files", "JSON/Yaml file path which defines custom routes").String()
+	prof   = app.Flag("prof", "Enable profiling").Hidden().Bool()
 )
 
 func init() {
@@ -82,6 +84,10 @@ func logRequests(receivedRequests chan http.Request) {
 }
 
 func main() {
+	if prof != nil && *prof {
+		defer profile.Start().Stop()
+	}
+
 	endpointsPort := 8080
 	monitoringPort := 8090
 	apiUUID := uuid.Must(uuid.NewV4())
@@ -105,7 +111,5 @@ func main() {
 	go func() { startEndpointsServer() }()
 	go func() { startMonitoringServer() }()
 
-	//logRequests(rr)
-	for {
-	}
+	select {} // block as the servers run. less CPU intensive than for-loop.
 }

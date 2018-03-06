@@ -94,7 +94,6 @@ func storeRequests(receivedRequests chan requests.Request) {
 		case r := <-receivedRequests:
 			requestUUID := uuid.Must(uuid.NewV4())
 			requestCache.Set(requestUUID.String(), r, cache.DefaultExpiration)
-		default:
 		}
 	}
 }
