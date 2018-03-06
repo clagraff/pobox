@@ -10,9 +10,11 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/clagraff/pobox/requests"
 	"github.com/nbari/violetear"
+	cache "github.com/patrickmn/go-cache"
 	uuid "github.com/satori/go.uuid"
+
+	"github.com/clagraff/pobox/requests"
 )
 
 func copyRequest(original *http.Request) (http.Request, error) {
@@ -47,10 +49,10 @@ func copyRequest(original *http.Request) (http.Request, error) {
 	return copy, nil
 }
 
-var cachedRequests = make(map[uuid.UUID]requests.Request)
+var requestCache = cache.New(5*time.Minute, 10*time.Minute)
 
 func listRequests(w http.ResponseWriter, r *http.Request) {
-	bites, err := json.Marshal(cachedRequests)
+	bites, err := json.Marshal(requestCache.Items())
 	if err != nil {
 		panic(err)
 	}
@@ -62,28 +64,28 @@ func retrieveRequest(w http.ResponseWriter, r *http.Request) {
 	requestedUUID := violetear.GetParam("uuid", r)
 	uuidToRetrieve := uuid.Must(uuid.FromString(requestedUUID))
 
-	if req, ok := cachedRequests[uuidToRetrieve]; ok {
+	if req, ok := requestCache.Get(uuidToRetrieve.String()); ok {
 		bites, err := json.Marshal(req)
 		if err != nil {
 			panic(err)
 		}
 
 		w.Write(bites)
-
+		return
 	} else {
 		panic("request uuid not found")
 	}
 }
 
 func clearRequests(w http.ResponseWriter, r *http.Request) {
-	cachedRequests = make(map[uuid.UUID]requests.Request)
+	requestCache.Flush()
 }
 
 func deleteRequest(w http.ResponseWriter, r *http.Request) {
 	requestedUUID := violetear.GetParam("uuid", r)
-
 	uuidToDelete := uuid.Must(uuid.FromString(requestedUUID))
-	delete(cachedRequests, uuidToDelete)
+
+	requestCache.Delete(uuidToDelete.String())
 }
 
 func storeRequests(receivedRequests chan requests.Request) {
@@ -91,7 +93,7 @@ func storeRequests(receivedRequests chan requests.Request) {
 		select {
 		case r := <-receivedRequests:
 			requestUUID := uuid.Must(uuid.NewV4())
-			cachedRequests[requestUUID] = r
+			requestCache.Set(requestUUID.String(), r, cache.DefaultExpiration)
 		default:
 		}
 	}
