@@ -48,6 +48,7 @@ func copyRequest(original *http.Request) (http.Request, error) {
 
 func createCatchAllRoute(receivedRequests chan requests.Request) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		defer logHit(r.URL.String())
 		copiedReq, err := copyRequest(r)
 		if err != nil {
 			panic(err)
@@ -56,15 +57,17 @@ func createCatchAllRoute(receivedRequests chan requests.Request) func(http.Respo
 		receivedRequests <- requests.FromHTTPRequest(copiedReq, true)
 
 		w.Write([]byte(""))
-
-		color.Println(
-			color.Yellow(time.Now().Local().String()),
-			color.Cyan("Served web-hook request:"),
-			"\t",
-			r.URL.String(),
-		)
-
 	}
+}
+
+func logHit(url string) {
+	color.Println(
+		color.Yellow(time.Now().Local().String()),
+		"\t",
+		color.Cyan("Served web-hook request:"),
+		"\t",
+		url,
+	)
 }
 
 func CreateServer(receivedRequests chan requests.Request, port int) (*http.Server, func() error) {

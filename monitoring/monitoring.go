@@ -101,6 +101,7 @@ func storeRequests(receivedRequests chan requests.Request) {
 
 func authWrapper(apiKey uuid.UUID, handler http.HandlerFunc) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+
 		authorization := r.Header.Get("Authorization")
 		if len(authorization) <= 0 {
 			w.WriteHeader(401)
@@ -114,14 +115,20 @@ func authWrapper(apiKey uuid.UUID, handler http.HandlerFunc) func(http.ResponseW
 			return
 		}
 
+		defer logHit(r.URL.String())
+
 		handler(w, r)
-		color.Println(
-			color.Yellow(time.Now().Local().String()),
-			color.Magenta("Served API request:"),
-			"\t",
-			r.URL.String(),
-		)
 	}
+}
+
+func logHit(url string) {
+	color.Println(
+		color.Yellow(time.Now().Local().String()),
+		"\t",
+		color.Magenta("Served API request:"),
+		"\t",
+		url,
+	)
 }
 
 func CreateServer(apiKey uuid.UUID, receivedRequests chan requests.Request, port int) (*http.Server, func() error) {
