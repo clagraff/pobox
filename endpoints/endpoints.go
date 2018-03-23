@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/clagraff/pobox/requests"
+	"github.com/labstack/gommon/color"
 	"github.com/nbari/violetear"
 )
 
@@ -55,6 +56,14 @@ func createCatchAllRoute(receivedRequests chan requests.Request) func(http.Respo
 		receivedRequests <- requests.FromHTTPRequest(copiedReq, true)
 
 		w.Write([]byte(""))
+
+		color.Println(
+			color.Yellow(time.Now().Local().String()),
+			color.Cyan("Served web-hook request:"),
+			"\t",
+			r.URL.String(),
+		)
+
 	}
 }
 

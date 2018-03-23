@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/labstack/gommon/color"
 	"github.com/nbari/violetear"
 	cache "github.com/patrickmn/go-cache"
 	uuid "github.com/satori/go.uuid"
@@ -114,6 +115,12 @@ func authWrapper(apiKey uuid.UUID, handler http.HandlerFunc) func(http.ResponseW
 		}
 
 		handler(w, r)
+		color.Println(
+			color.Yellow(time.Now().Local().String()),
+			color.Magenta("Served API request:"),
+			"\t",
+			r.URL.String(),
+		)
 	}
 }
 
