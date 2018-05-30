@@ -11,6 +11,8 @@ requests.
 POBox provides a simple solution for mocking API requests and responses, as well
 as a method for loggin web hooks and integrations.
 
+:warning: Right now `pobox` is still in progress, and does't have any releases. For now, run at your own risk :warning:
+
 ## Quickstart
 POBox is a Golang application. As such, you will need to Go installed in order
 to run the application. 
